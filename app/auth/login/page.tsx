@@ -36,13 +36,17 @@ export default function LoginPage() {
       return
     }
 
-    // Check if user is admin
-    const isAdmin = data.user?.user_metadata?.is_admin === true
+    // Check role in profiles table
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user!.id)
+      .single()
 
-    if (isAdmin) {
-      router.push("/admin")
+    if (profile?.role === 'admin') {
+      router.push('/admin')
     } else {
-      router.push("/dashboard")
+      router.push('/dashboard')
     }
     router.refresh()
   }
