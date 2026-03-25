@@ -83,27 +83,18 @@ export default function TicketDetailPage() {
     loadData()
   }, [id])
 
-  // Realtime subscription for new messages
+  // Poll for new messages every 3 seconds
   useEffect(() => {
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`ticket-${id}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
-        async (payload) => {
-          if (payload.new.ticket_id !== id) return
-          const { data } = await supabase
-            .from("messages")
-            .select("*, profiles!sender_id(full_name, role)")
-            .eq("id", payload.new.id)
-            .single()
-          if (data) setMessages((prev) => [...prev, data])
-        }
-      )
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
+    const interval = setInterval(async () => {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from("messages")
+        .select("*, profiles!sender_id(full_name, role)")
+        .eq("ticket_id", id)
+        .order("created_at", { ascending: true })
+      if (data) setMessages(data)
+    }, 3000)
+    return () => clearInterval(interval)
   }, [id])
 
   useEffect(() => {
