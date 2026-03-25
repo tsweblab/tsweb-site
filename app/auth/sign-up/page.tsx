@@ -52,18 +52,29 @@ export default function SignUpPage() {
       return
     }
 
-    // Session active : vérifier le rôle dans profiles
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user!.id)
-      .single()
+    // Session active : attendre que le trigger crée le profil (race condition)
+    let profile = null
+    for (let i = 0; i < 5; i++) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user!.id)
+        .single()
+
+      if (profileData) {
+        profile = profileData
+        break
+      }
+      // Attendre 500ms avant de réessayer
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
 
     if (profile?.role === 'admin') {
       router.push('/admin')
     } else {
       router.push('/dashboard')
     }
+    router.refresh()
   }
 
   return (
