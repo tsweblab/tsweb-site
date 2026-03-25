@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { AdminSidebar } from "@/components/admin/sidebar"
-import { AdminHeader } from "@/components/admin/header"
+import { redirect } from "next/navigation"
 
 export default async function AdminLayout({
   children,
@@ -9,32 +7,32 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+
+  // 1. Vérifier si l'utilisateur est authentifié
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
     redirect("/auth/login")
   }
 
-  // Check role in profiles table
+  // 2. Vérifier le rôle 'admin' dans la table profiles
   const { data: profile } = await supabase
     .from("profiles")
-    .select("*")
+    .select("role")
     .eq("id", user.id)
     .single()
 
-  if (profile?.role !== 'admin') {
+  // 3. Sécurité stricte : si pas admin, redirection immédiate
+  if (profile?.role !== "admin") {
     redirect("/dashboard")
   }
 
   return (
-    <div className="flex min-h-screen">
-      <AdminSidebar user={user} profile={profile} />
-      <div className="flex flex-1 flex-col">
-        <AdminHeader user={user} profile={profile} />
-        <main className="flex-1 overflow-auto p-6">
-          {children}
-        </main>
-      </div>
+    <div className="admin-container">
+      {/* Tu peux ajouter ici ta Sidebar Admin ou ton Header Admin spécifique */}
+      <main>{children}</main>
     </div>
   )
 }
