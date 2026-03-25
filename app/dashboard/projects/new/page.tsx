@@ -69,7 +69,7 @@ export default function NewProjectPage() {
       project_type: packType,
       description,
       objectives: objectivesText || null,
-      example_sites: references || null,
+      example_sites: references ? references.split("\n").filter(Boolean) : null,
       budget_range: budget || null,
       estimated_delivery: deadline || null,
       status: "pending",
