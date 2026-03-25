@@ -53,9 +53,14 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isAdminRoute && user) {
-    // Check if user is admin
-    const isAdmin = user.user_metadata?.is_admin === true
-    if (!isAdmin) {
+    // Check if user is admin via profiles table
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin') {
       // Not an admin, redirect to client dashboard
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'

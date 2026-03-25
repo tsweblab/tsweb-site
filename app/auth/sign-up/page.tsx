@@ -27,7 +27,7 @@ export default function SignUpPage() {
 
     const supabase = createClient()
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -36,7 +36,6 @@ export default function SignUpPage() {
         data: {
           full_name: fullName,
           company: company,
-          is_admin: false,
         },
       },
     })
@@ -47,7 +46,24 @@ export default function SignUpPage() {
       return
     }
 
-    router.push("/auth/sign-up-success")
+    // Si pas de session, la confirmation email est activée
+    if (!data.session) {
+      router.push("/auth/sign-up-success")
+      return
+    }
+
+    // Session active : vérifier le rôle dans profiles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user!.id)
+      .single()
+
+    if (profile?.role === 'admin') {
+      router.push('/admin')
+    } else {
+      router.push('/dashboard')
+    }
   }
 
   return (
