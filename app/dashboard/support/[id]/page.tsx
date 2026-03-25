@@ -83,6 +83,28 @@ export default function TicketDetailPage() {
     loadData()
   }, [id])
 
+  // Realtime subscription for new messages
+  useEffect(() => {
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`ticket-${id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `ticket_id=eq.${id}` },
+        async (payload) => {
+          const { data } = await supabase
+            .from("messages")
+            .select("*, profiles!sender_id(full_name, role)")
+            .eq("id", payload.new.id)
+            .single()
+          if (data) setMessages((prev) => [...prev, data])
+        }
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [id])
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
