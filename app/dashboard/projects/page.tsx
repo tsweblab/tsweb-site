@@ -20,7 +20,7 @@ export default async function ProjectsPage() {
   const { data: projects } = await supabase
     .from("projects")
     .select("*")
-    .eq("user_id", user?.id)
+    .eq("client_id", user?.id)
     .order("created_at", { ascending: false })
 
   return (
@@ -50,9 +50,9 @@ export default async function ProjectsPage() {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                       <div className="space-y-1">
-                        <CardTitle className="line-clamp-1">{project.name}</CardTitle>
+                        <CardTitle className="line-clamp-1">{project.project_name}</CardTitle>
                         <CardDescription>
-                          {project.pack_type === "vitrine" ? "Pack Vitrine" : "Pack Dynamique"}
+                          {project.project_type === "vitrine" ? "Pack Vitrine" : "Pack Dynamique"}
                         </CardDescription>
                       </div>
                       <Badge variant="outline" className={status.className}>
@@ -63,15 +63,15 @@ export default async function ProjectsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {project.brief?.description || "Aucune description disponible."}
+                      {project.description || "Aucune description disponible."}
                     </p>
                     <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
                       <span>
                         Créé le {new Date(project.created_at).toLocaleDateString("fr-FR")}
                       </span>
-                      {project.deadline && (
+                      {project.estimated_delivery && (
                         <span>
-                          Deadline: {new Date(project.deadline).toLocaleDateString("fr-FR")}
+                          Deadline: {new Date(project.estimated_delivery).toLocaleDateString("fr-FR")}
                         </span>
                       )}
                     </div>

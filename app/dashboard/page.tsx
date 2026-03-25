@@ -12,23 +12,18 @@ export default async function DashboardPage() {
   const { data: projects } = await supabase
     .from("projects")
     .select("*")
-    .eq("user_id", user?.id)
+    .eq("client_id", user?.id)
     .order("created_at", { ascending: false })
     .limit(5)
-
-  // Fetch unread messages count
-  const { count: unreadCount } = await supabase
-    .from("messages")
-    .select("*", { count: "exact", head: true })
-    .eq("receiver_id", user?.id)
-    .eq("is_read", false)
 
   // Fetch open support tickets
   const { count: openTickets } = await supabase
     .from("support_tickets")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", user?.id)
+    .eq("client_id", user?.id)
     .neq("status", "resolved")
+
+  const unreadCount = 0
 
   const stats = [
     {
@@ -139,9 +134,9 @@ export default async function DashboardPage() {
                   className="flex items-center justify-between rounded-lg border border-border/50 p-4 transition-colors hover:bg-card"
                 >
                   <div className="space-y-1">
-                    <p className="font-medium">{project.name}</p>
+                    <p className="font-medium">{project.project_name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {project.pack_type === "vitrine" ? "Pack Vitrine" : "Pack Dynamique"}
+                      {project.project_type === "vitrine" ? "Pack Vitrine" : "Pack Dynamique"}
                     </p>
                   </div>
                   {getStatusBadge(project.status)}
