@@ -90,8 +90,9 @@ export default function TicketDetailPage() {
       .channel(`ticket-${id}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `ticket_id=eq.${id}` },
+        { event: "INSERT", schema: "public", table: "messages" },
         async (payload) => {
+          if (payload.new.ticket_id !== id) return
           const { data } = await supabase
             .from("messages")
             .select("*, profiles!sender_id(full_name, role)")
