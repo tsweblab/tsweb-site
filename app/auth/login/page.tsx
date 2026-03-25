@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { createClient } from "@/lib/supabase/client"
+import { loginAction } from "./actions"
 import { Loader2, AlertCircle } from "lucide-react"
 
 export default function LoginPage() {
@@ -21,30 +21,11 @@ export default function LoginPage() {
     setError(null)
     setIsLoading(true)
 
-    const supabase = createClient()
+    const result = await loginAction(email, password)
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (signInError) {
-      setError(signInError.message)
+    if (result?.error) {
+      setError(result.error)
       setIsLoading(false)
-      return
-    }
-
-    // Check role in profiles table
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user!.id)
-      .single()
-
-    if (profile?.role === 'admin') {
-      window.location.href = '/admin'
-    } else {
-      window.location.href = '/dashboard'
     }
   }
 
