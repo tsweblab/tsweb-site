@@ -14,7 +14,6 @@ interface Message {
   content: string
   sender_id: string
   created_at: string
-  profiles: { full_name: string | null; role: string } | null
 }
 
 interface Ticket {
@@ -71,7 +70,7 @@ export default function AdminTicketDetailPage() {
 
     const { data: messagesData } = await supabase
       .from("messages")
-      .select("*, profiles!sender_id(full_name, role)")
+      .select("id, content, sender_id, created_at")
       .eq("ticket_id", id)
       .order("created_at", { ascending: true })
 
@@ -89,7 +88,7 @@ export default function AdminTicketDetailPage() {
       const supabase = createClient()
       const { data } = await supabase
         .from("messages")
-        .select("*, profiles!sender_id(full_name, role)")
+        .select("id, content, sender_id, created_at")
         .eq("ticket_id", id)
         .order("created_at", { ascending: true })
       if (data) setMessages(data)
@@ -215,11 +214,10 @@ export default function AdminTicketDetailPage() {
 
         {messages.map((msg) => {
           const isMe = msg.sender_id === currentUserId
-          const isAdmin = msg.profiles?.role === "admin"
-          const senderName = isMe ? "Vous" : (msg.profiles?.full_name || "Client")
+          const senderName = isMe ? "Vous" : "Client"
 
           return (
-            <div key={msg.id} className={`mb-4 flex ${isMe || isAdmin ? "justify-end" : "justify-start"}`}>
+            <div key={msg.id} className={`mb-4 flex ${isMe ? "justify-end" : "justify-start"}`}>
               <div className="max-w-[75%] space-y-1">
                 <div className={`rounded-2xl px-4 py-3 ${isMe ? "rounded-tr-sm bg-primary text-primary-foreground" : "rounded-tl-sm bg-muted"}`}>
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
