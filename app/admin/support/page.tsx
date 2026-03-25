@@ -23,7 +23,7 @@ interface SupportTicket {
   created_at: string
   profiles: {
     full_name: string | null
-    company: string | null
+    company_name: string | null
   } | null
 }
 
@@ -50,7 +50,7 @@ export default function AdminSupportPage() {
     
     let query = supabase
       .from("support_tickets")
-      .select("*, profiles(full_name, company)")
+      .select("*, profiles!client_id(full_name, company_name)")
       .order("created_at", { ascending: false })
 
     if (filter !== "all") {
@@ -123,8 +123,8 @@ export default function AdminSupportPage() {
                       <CardTitle className="text-lg">{ticket.subject}</CardTitle>
                       <CardDescription className="flex items-center gap-2">
                         <User className="h-3 w-3" />
-                        {ticket.profiles?.full_name || "Client"} 
-                        {ticket.profiles?.company && ` - ${ticket.profiles.company}`}
+                        {ticket.profiles?.full_name || "Client"}
+                        {ticket.profiles?.company_name && ` - ${ticket.profiles.company_name}`}
                         <span className="mx-1">|</span>
                         {new Date(ticket.created_at).toLocaleDateString("fr-FR")}
                       </CardDescription>

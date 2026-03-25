@@ -64,7 +64,7 @@ export default function SupportPage() {
     const { data } = await supabase
       .from("support_tickets")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("client_id", user.id)
       .order("created_at", { ascending: false })
 
     if (data) {
@@ -86,7 +86,7 @@ export default function SupportPage() {
     if (!user) return
 
     const { error } = await supabase.from("support_tickets").insert({
-      user_id: user.id,
+      client_id: user.id,
       subject,
       message,
       priority,
