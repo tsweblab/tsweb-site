@@ -17,11 +17,15 @@ export default async function ProjectsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: projects } = await supabase
+  const { data: projects, error: projectsError } = await supabase
     .from("projects")
     .select("*")
     .eq("client_id", user?.id)
     .order("created_at", { ascending: false })
+
+  if (projectsError) {
+    return <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">Erreur: {projectsError.message} | user_id: {user?.id}</div>
+  }
 
   return (
     <div className="space-y-8">
