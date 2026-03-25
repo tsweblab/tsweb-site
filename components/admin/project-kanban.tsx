@@ -34,9 +34,19 @@ interface ProjectKanbanProps {
 
 const columns = [
   { id: "pending", title: "En attente", icon: Clock, color: "text-yellow-500" },
-  { id: "in_progress", title: "En cours", icon: AlertCircle, color: "text-primary" },
-  { id: "review", title: "En révision", icon: Eye, color: "text-purple-500" },
-  { id: "completed", title: "Terminés", icon: CheckCircle2, color: "text-green-500" },
+  { id: "quoted", title: "Devis envoyé", icon: AlertCircle, color: "text-blue-500" },
+  { id: "development", title: "En développement", icon: Eye, color: "text-primary" },
+  { id: "delivered", title: "Livrés", icon: CheckCircle2, color: "text-green-500" },
+]
+
+const allStatuses = [
+  { id: "pending", title: "En attente" },
+  { id: "quoted", title: "Devis envoyé" },
+  { id: "accepted", title: "Accepté" },
+  { id: "maquette", title: "Maquette" },
+  { id: "development", title: "En développement" },
+  { id: "testing", title: "En test" },
+  { id: "delivered", title: "Livré" },
 ]
 
 export function ProjectKanban({ initialProjects }: ProjectKanbanProps) {
@@ -104,15 +114,14 @@ export function ProjectKanban({ initialProjects }: ProjectKanbanProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {columns
-                            .filter((c) => c.id !== project.status)
-                            .map((c) => (
+                          {allStatuses
+                            .filter((s) => s.id !== project.status)
+                            .map((s) => (
                               <DropdownMenuItem
-                                key={c.id}
-                                onClick={() => updateProjectStatus(project.id, c.id)}
+                                key={s.id}
+                                onClick={() => updateProjectStatus(project.id, s.id)}
                               >
-                                <c.icon className={cn("mr-2 h-4 w-4", c.color)} />
-                                {c.title}
+                                {s.title}
                               </DropdownMenuItem>
                             ))}
                           <DropdownMenuItem
