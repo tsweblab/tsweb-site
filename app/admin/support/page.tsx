@@ -12,7 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
-import { HelpCircle, Clock, CheckCircle2, AlertCircle, User } from "lucide-react"
+import { HelpCircle, Clock, CheckCircle2, AlertCircle, User, ChevronRight } from "lucide-react"
+import Link from "next/link"
 
 interface SupportTicket {
   id: string
@@ -116,11 +117,12 @@ export default function AdminSupportPage() {
             const StatusIcon = stat.icon
 
             return (
-              <Card key={ticket.id} className="transition-all hover:border-primary/30">
+              <Link key={ticket.id} href={`/admin/support/${ticket.id}`}>
+              <Card className="transition-all hover:border-primary/30 cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="space-y-1">
-                      <CardTitle className="text-lg">{ticket.subject}</CardTitle>
+                      <CardTitle className="text-lg flex items-center gap-2">{ticket.subject} <ChevronRight className="h-4 w-4 text-muted-foreground" /></CardTitle>
                       <CardDescription className="flex items-center gap-2">
                         <User className="h-3 w-3" />
                         {ticket.profiles?.full_name || "Client"}
@@ -175,6 +177,7 @@ export default function AdminSupportPage() {
                   </div>
                 </CardContent>
               </Card>
+              </Link>
             )
           })}
         </div>

@@ -23,7 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
-import { Plus, HelpCircle, Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
+import { Plus, HelpCircle, Clock, CheckCircle2, AlertCircle, Loader2, ChevronRight } from "lucide-react"
+import Link from "next/link"
 
 interface SupportTicket {
   id: string
@@ -194,11 +195,12 @@ export default function SupportPage() {
             const StatusIcon = stat.icon
 
             return (
-              <Card key={ticket.id} className="transition-all hover:border-primary/30">
+              <Link key={ticket.id} href={`/dashboard/support/${ticket.id}`}>
+              <Card className="transition-all hover:border-primary/30 cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="space-y-1">
-                      <CardTitle className="text-lg">{ticket.subject}</CardTitle>
+                      <CardTitle className="text-lg flex items-center gap-2">{ticket.subject} <ChevronRight className="h-4 w-4 text-muted-foreground" /></CardTitle>
                       <CardDescription>
                         Créé le {new Date(ticket.created_at).toLocaleDateString("fr-FR")} à{" "}
                         {new Date(ticket.created_at).toLocaleTimeString("fr-FR", {
@@ -222,6 +224,7 @@ export default function SupportPage() {
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ticket.message}</p>
                 </CardContent>
               </Card>
+              </Link>
             )
           })}
         </div>
