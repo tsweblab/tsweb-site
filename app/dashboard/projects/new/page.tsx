@@ -58,18 +58,20 @@ export default function NewProjectPage() {
       return
     }
 
+    const objectivesText = [
+      targetAudience ? `Public cible : ${targetAudience}` : null,
+      features ? `Fonctionnalités souhaitées :\n${features}` : null,
+    ].filter(Boolean).join("\n\n")
+
     const { error: insertError } = await supabase.from("projects").insert({
-      user_id: user.id,
-      name,
-      pack_type: packType,
-      brief: {
-        description,
-        target_audience: targetAudience,
-        features: features.split("\n").filter(Boolean),
-        references: references.split("\n").filter(Boolean),
-        budget,
-      },
-      deadline: deadline || null,
+      client_id: user.id,
+      project_name: name,
+      project_type: packType,
+      description,
+      objectives: objectivesText || null,
+      example_sites: references || null,
+      budget_range: budget || null,
+      estimated_delivery: deadline || null,
       status: "pending",
     })
 
