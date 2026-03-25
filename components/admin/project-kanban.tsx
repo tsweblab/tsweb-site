@@ -17,14 +17,14 @@ import Link from "next/link"
 
 interface Project {
   id: string
-  name: string
+  project_name: string
   status: string
-  pack_type: string
+  project_type: string
   created_at: string
-  deadline: string | null
+  estimated_delivery: string | null
   profiles: {
     full_name: string | null
-    company: string | null
+    company_name: string | null
   } | null
 }
 
@@ -86,14 +86,14 @@ export function ProjectKanban({ initialProjects }: ProjectKanbanProps) {
                   <CardHeader className="p-4 pb-2">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        {project.pack_type === "vitrine" ? (
+                        {project.project_type === "vitrine" ? (
                           <Globe className="h-4 w-4 text-muted-foreground" />
                         ) : (
                           <Rocket className="h-4 w-4 text-muted-foreground" />
                         )}
                         <Link href={`/admin/projects/${project.id}`}>
                           <CardTitle className="text-sm hover:text-primary">
-                            {project.name}
+                            {project.project_name}
                           </CardTitle>
                         </Link>
                       </div>
@@ -129,23 +129,23 @@ export function ProjectKanban({ initialProjects }: ProjectKanbanProps) {
                   <CardContent className="p-4 pt-0">
                     <p className="text-xs text-muted-foreground">
                       {project.profiles?.full_name || "Client"}
-                      {project.profiles?.company && ` - ${project.profiles.company}`}
+                      {project.profiles?.company_name && ` - ${project.profiles.company_name}`}
                     </p>
                     <div className="mt-2 flex items-center justify-between">
                       <Badge
                         variant="outline"
                         className={cn(
                           "text-xs",
-                          project.pack_type === "vitrine"
+                          project.project_type === "vitrine"
                             ? "border-blue-500/20 bg-blue-500/10 text-blue-500"
                             : "border-purple-500/20 bg-purple-500/10 text-purple-500"
                         )}
                       >
-                        {project.pack_type === "vitrine" ? "Vitrine" : "Dynamique"}
+                        {project.project_type === "vitrine" ? "Vitrine" : "Dynamique"}
                       </Badge>
-                      {project.deadline && (
+                      {project.estimated_delivery && (
                         <span className="text-xs text-muted-foreground">
-                          {new Date(project.deadline).toLocaleDateString("fr-FR")}
+                          {new Date(project.estimated_delivery).toLocaleDateString("fr-FR")}
                         </span>
                       )}
                     </div>

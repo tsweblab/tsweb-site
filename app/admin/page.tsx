@@ -38,14 +38,14 @@ export default async function AdminDashboardPage() {
   // Fetch recent projects
   const { data: recentProjects } = await supabase
     .from("projects")
-    .select("*, profiles(full_name, company)")
+    .select("*, profiles!client_id(full_name, company_name)")
     .order("created_at", { ascending: false })
     .limit(5)
 
   // Fetch recent tickets
   const { data: recentTickets } = await supabase
     .from("support_tickets")
-    .select("*, profiles(full_name)")
+    .select("*, profiles!client_id(full_name)")
     .order("created_at", { ascending: false })
     .limit(5)
 
@@ -138,7 +138,7 @@ export default async function AdminDashboardPage() {
               <div className="space-y-4">
                 {recentProjects.map((project) => {
                   const status = statusConfig[project.status as keyof typeof statusConfig] || statusConfig.pending
-                  const profile = project.profiles as { full_name: string | null; company: string | null } | null
+                  const profile = project.profiles as { full_name: string | null; company_name: string | null } | null
 
                   return (
                     <Link
@@ -147,9 +147,9 @@ export default async function AdminDashboardPage() {
                       className="flex items-center justify-between rounded-lg border border-border/50 p-4 transition-colors hover:bg-muted/50"
                     >
                       <div className="space-y-1">
-                        <p className="font-medium">{project.name}</p>
+                        <p className="font-medium">{project.project_name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {profile?.full_name || "Client"} - {profile?.company || "N/A"}
+                          {profile?.full_name || "Client"} - {profile?.company_name || "N/A"}
                         </p>
                       </div>
                       <Badge variant="secondary" className={status.className}>

@@ -8,9 +8,12 @@ import { ArrowLeft, Clock, CheckCircle2, AlertCircle, XCircle, Globe, Rocket, Ex
 
 const statusConfig = {
   pending: { label: "En attente", icon: Clock, className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
-  in_progress: { label: "En cours", icon: AlertCircle, className: "bg-primary/10 text-primary border-primary/20" },
-  review: { label: "En révision", icon: AlertCircle, className: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
-  completed: { label: "Terminé", icon: CheckCircle2, className: "bg-green-500/10 text-green-500 border-green-500/20" },
+  quoted: { label: "Devis envoyé", icon: AlertCircle, className: "bg-blue-500/10 text-blue-500 border-blue-500/20" },
+  accepted: { label: "Accepté", icon: CheckCircle2, className: "bg-green-500/10 text-green-500 border-green-500/20" },
+  maquette: { label: "Maquette", icon: AlertCircle, className: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
+  development: { label: "En développement", icon: AlertCircle, className: "bg-primary/10 text-primary border-primary/20" },
+  testing: { label: "En test", icon: AlertCircle, className: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
+  delivered: { label: "Livré", icon: CheckCircle2, className: "bg-green-500/10 text-green-500 border-green-500/20" },
   cancelled: { label: "Annulé", icon: XCircle, className: "bg-destructive/10 text-destructive border-destructive/20" },
 }
 
@@ -23,7 +26,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     .from("projects")
     .select("*")
     .eq("id", id)
-    .eq("user_id", user?.id)
+    .eq("client_id", user?.id)
     .single()
 
   if (!project) {
@@ -32,13 +35,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   const status = statusConfig[project.status as keyof typeof statusConfig] || statusConfig.pending
   const StatusIcon = status.icon
-  const brief = project.brief as {
-    description?: string
-    target_audience?: string
-    features?: string[]
-    references?: string[]
-    budget?: string
-  } | null
 
   return (
     <div className="space-y-8">
@@ -52,14 +48,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{project.name}</h1>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{project.project_name}</h1>
               <Badge variant="outline" className={status.className}>
                 <StatusIcon className="mr-1 h-3 w-3" />
                 {status.label}
               </Badge>
             </div>
             <p className="text-muted-foreground">
-              {project.pack_type === "vitrine" ? "Pack Vitrine" : "Pack Dynamique"} - Créé le{" "}
+              {project.project_type === "vitrine" ? "Pack Vitrine" : "Pack Dynamique"} - Créé le{" "}
               {new Date(project.created_at).toLocaleDateString("fr-FR")}
             </p>
           </div>
@@ -75,11 +71,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Brief */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                {project.pack_type === "vitrine" ? (
+                {project.project_type === "vitrine" ? (
                   <Globe className="h-5 w-5 text-primary" />
                 ) : (
                   <Rocket className="h-5 w-5 text-primary" />
@@ -89,39 +84,25 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <CardDescription>Les détails de votre demande</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {brief?.description && (
+              {project.description && (
                 <div>
                   <h4 className="mb-2 font-medium">Description</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{brief.description}</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{project.description}</p>
                 </div>
               )}
 
-              {brief?.target_audience && (
+              {project.objectives && (
                 <div>
-                  <h4 className="mb-2 font-medium">Public cible</h4>
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{brief.target_audience}</p>
+                  <h4 className="mb-2 font-medium">Objectifs & fonctionnalités</h4>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{project.objectives}</p>
                 </div>
               )}
 
-              {brief?.features && brief.features.length > 0 && (
-                <div>
-                  <h4 className="mb-2 font-medium">Fonctionnalités souhaitées</h4>
-                  <ul className="space-y-1 text-sm text-muted-foreground">
-                    {brief.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-primary" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {brief?.references && brief.references.length > 0 && (
+              {project.example_sites && project.example_sites.length > 0 && (
                 <div>
                   <h4 className="mb-2 font-medium">Sites de référence</h4>
                   <ul className="space-y-2 text-sm">
-                    {brief.references.map((ref, i) => (
+                    {project.example_sites.map((ref: string, i: number) => (
                       <li key={i}>
                         <a
                           href={ref}
@@ -139,8 +120,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               )}
             </CardContent>
           </Card>
-
-          {/* Timeline would go here in a full implementation */}
         </div>
 
         {/* Sidebar */}
@@ -159,21 +138,27 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Pack</span>
                 <span className="font-medium">
-                  {project.pack_type === "vitrine" ? "Vitrine" : "Dynamique"}
+                  {project.project_type === "vitrine" ? "Vitrine" : "Dynamique"}
                 </span>
               </div>
-              {project.deadline && (
+              {project.estimated_delivery && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Deadline</span>
                   <span className="font-medium">
-                    {new Date(project.deadline).toLocaleDateString("fr-FR")}
+                    {new Date(project.estimated_delivery).toLocaleDateString("fr-FR")}
                   </span>
                 </div>
               )}
-              {brief?.budget && (
+              {project.budget_range && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Budget</span>
-                  <span className="font-medium">{brief.budget}</span>
+                  <span className="font-medium">{project.budget_range}</span>
+                </div>
+              )}
+              {project.quoted_price && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Devis</span>
+                  <span className="font-medium">{project.quoted_price} €</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
