@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import { Code2, Palette, Zap, Users } from "lucide-react"
 
