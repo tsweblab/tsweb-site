@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Code2, Palette, Zap, Users } from "lucide-react"
 
 const values = [
@@ -23,6 +24,21 @@ const values = [
   },
 ]
 
+const founders = [
+  {
+    name: "Timothée",
+    role: "Lead Developer",
+    initial: "T",
+    photo: "/images/founder-timothee.jpg",
+  },
+  {
+    name: "Sonny",
+    role: "Creative Director",
+    initial: "S",
+    photo: "/images/founder-sonny.jpg",
+  },
+]
+
 export function About() {
   return (
     <section id="about" className="relative py-24 md:py-32">
@@ -34,36 +50,41 @@ export function About() {
               Qui sommes-<span className="gradient-text">nous</span> ?
             </h2>
             <p className="mb-6 text-pretty text-lg text-muted-foreground">
-              TS_WEB.lab est né de la passion commune de deux développeurs pour 
-              la création web d&apos;excellence. Notre mission : rendre le digital 
+              TS_WEB.lab est né de la passion commune de deux développeurs pour
+              la création web d&apos;excellence. Notre mission : rendre le digital
               accessible et performant pour toutes les entreprises.
             </p>
             <p className="mb-8 text-pretty text-muted-foreground">
-              Nous combinons expertise technique et sensibilité design pour créer 
-              des expériences web uniques. Chaque projet est une nouvelle aventure 
+              Nous combinons expertise technique et sensibilité design pour créer
+              des expériences web uniques. Chaque projet est une nouvelle aventure
               que nous abordons avec enthousiasme et professionnalisme.
             </p>
 
             {/* Founders */}
             <div className="flex gap-8">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-                  <span className="font-mono text-lg font-bold text-primary">T</span>
+              {founders.map((founder) => (
+                <div key={founder.name} className="flex items-center gap-4">
+                  <div className="relative h-14 w-14 overflow-hidden rounded-full bg-primary/10">
+                    <Image
+                      src={founder.photo}
+                      alt={`Photo de ${founder.name}`}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        // Hide image on error, fallback to initial shown below
+                        ;(e.target as HTMLImageElement).style.display = "none"
+                      }}
+                    />
+                    <span className="absolute inset-0 flex items-center justify-center font-mono text-lg font-bold text-primary">
+                      {founder.initial}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-semibold">{founder.name}</p>
+                    <p className="text-sm text-muted-foreground">{founder.role}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold">Fondateur T</p>
-                  <p className="text-sm text-muted-foreground">Lead Developer</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-                  <span className="font-mono text-lg font-bold text-primary">S</span>
-                </div>
-                <div>
-                  <p className="font-semibold">Fondateur S</p>
-                  <p className="text-sm text-muted-foreground">Creative Director</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
