@@ -66,20 +66,13 @@ export function About() {
             <div className="flex gap-8">
               {founders.map((founder) => (
                 <div key={founder.name} className="flex items-center gap-4">
-                  <div className="relative h-14 w-14 overflow-hidden rounded-full bg-primary/10">
+                  <div className="relative h-20 w-20 overflow-hidden rounded-full bg-primary/10">
                     <Image
                       src={founder.photo}
                       alt={`Photo de ${founder.name}`}
                       fill
                       className="object-cover"
-                      onError={(e) => {
-                        // Hide image on error, fallback to initial shown below
-                        ;(e.target as HTMLImageElement).style.display = "none"
-                      }}
                     />
-                    <span className="absolute inset-0 flex items-center justify-center font-mono text-lg font-bold text-primary">
-                      {founder.initial}
-                    </span>
                   </div>
                   <div>
                     <p className="font-semibold">{founder.name}</p>
