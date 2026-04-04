@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
+import { DeleteButton } from "@/components/admin/delete-button"
+import { deleteTicket } from "@/app/admin/actions"
 
 interface Message {
   id: string
@@ -186,6 +188,11 @@ export default function AdminTicketDetailPage() {
               Fermer
             </Button>
           )}
+          <DeleteButton
+            action={deleteTicket.bind(null, id)}
+            label="Supprimer"
+            description="Supprimer définitivement ce message et toute la conversation ? Cette action est irréversible."
+          />
         </div>
       </div>
 

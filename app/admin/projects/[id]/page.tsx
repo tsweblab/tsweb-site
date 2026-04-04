@@ -4,8 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { ArrowLeft, Clock, CheckCircle2, AlertCircle, XCircle, Globe, Rocket, ExternalLink, User, Building2, Phone, Mail } from "lucide-react"
+import { ArrowLeft, Globe, Rocket, ExternalLink, User, Building2, Phone, Mail } from "lucide-react"
 import { ProjectStatusUpdater } from "@/components/admin/project-status-updater"
+import { DeleteButton } from "@/components/admin/delete-button"
+import { deleteProject } from "@/app/admin/actions"
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   pending:     { label: "En attente",       className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
@@ -61,7 +63,14 @@ export default async function AdminProjectDetailPage({ params }: { params: Promi
             </p>
           </div>
         </div>
-        <ProjectStatusUpdater projectId={project.id} currentStatus={project.status} />
+        <div className="flex gap-2">
+          <ProjectStatusUpdater projectId={project.id} currentStatus={project.status} />
+          <DeleteButton
+            action={deleteProject.bind(null, project.id)}
+            label="Supprimer"
+            description={`Supprimer définitivement le projet "${project.project_name}" ? Cette action est irréversible.`}
+          />
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
