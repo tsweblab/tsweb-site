@@ -76,7 +76,12 @@ export default function LoginPage() {
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
+                  <div className="flex items-center justify-between">
+                    <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
+                    <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
+                      Mot de passe oublié ?
+                    </Link>
+                  </div>
                   <Input
                     id="password"
                     type="password"
