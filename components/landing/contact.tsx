@@ -109,7 +109,7 @@ export function Contact() {
               ) : (
                 <form onSubmit={handleSubmit}>
                   <FieldGroup>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 xs:grid-cols-2 sm:grid-cols-2">
                       <Field>
                         <FieldLabel htmlFor="name">Nom complet</FieldLabel>
                         <Input id="name" placeholder="Jean Dupont" required />

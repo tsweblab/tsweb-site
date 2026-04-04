@@ -47,7 +47,7 @@ export function Hero() {
         </div>
 
         {/* Stats */}
-        <div className="mt-20 grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-16">
+        <div className="mt-16 grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-16">
           <div className="flex flex-col items-center">
             <span className="text-3xl font-bold text-foreground md:text-4xl">50+</span>
             <span className="text-sm text-muted-foreground">Projets livrés</span>

@@ -63,16 +63,16 @@ export function About() {
             </p>
 
             {/* Founders */}
-            <div className="flex gap-8">
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-8">
               {founders.map((founder) => (
                 <div key={founder.name} className="flex items-center gap-4">
-                  <div className="relative h-44 w-44 shrink-0 overflow-hidden rounded-full bg-primary/10">
+                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-primary/10 sm:h-28 sm:w-28 md:h-32 md:w-32">
                     <Image
                       src={founder.photo}
                       alt={`Photo de ${founder.name}`}
                       fill
                       className="object-cover object-center"
-                      sizes="176px"
+                      sizes="(max-width: 640px) 80px, (max-width: 768px) 112px, 128px"
                     />
                   </div>
                   <div>
