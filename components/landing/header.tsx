@@ -58,15 +58,15 @@ export function Header() {
         </div>
 
         {/* Mobile CTA buttons */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-1.5 md:hidden">
           <Link href="/auth/login">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="h-8 px-3 text-xs">
               Connexion
             </Button>
           </Link>
           <Link href="/auth/sign-up">
-            <Button size="sm" className="glow-primary">
-              Créer un compte
+            <Button size="sm" className="h-8 px-3 text-xs glow-primary">
+              S&apos;inscrire
             </Button>
           </Link>
         </div>
