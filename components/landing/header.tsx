@@ -3,11 +3,9 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
 import { useState } from "react"
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [logoError, setLogoError] = useState(false)
 
   return (
@@ -59,60 +57,20 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
-      </nav>
-
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl md:hidden">
-          <div className="flex flex-col gap-4 px-6 py-4">
-            <Link
-              href="#services"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Services
-            </Link>
-            <Link
-              href="#about"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              À propos
-            </Link>
-            <Link
-              href="#contact"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Contact
-            </Link>
-            <div className="flex flex-col gap-2 pt-4">
-              <Link href="/auth/login">
-                <Button variant="ghost" size="sm" className="w-full">
-                  Connexion
-                </Button>
-              </Link>
-              <Link href="/auth/sign-up">
-                <Button size="sm" className="w-full glow-primary">
-                  Créer un compte
-                </Button>
-              </Link>
-            </div>
-          </div>
+        {/* Mobile CTA buttons */}
+        <div className="flex items-center gap-2 md:hidden">
+          <Link href="/auth/login">
+            <Button variant="ghost" size="sm">
+              Connexion
+            </Button>
+          </Link>
+          <Link href="/auth/sign-up">
+            <Button size="sm" className="glow-primary">
+              Créer un compte
+            </Button>
+          </Link>
         </div>
-      )}
+      </nav>
     </header>
   )
 }
