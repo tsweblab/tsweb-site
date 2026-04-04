@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { FileText, Download, CheckCircle2, Clock, AlertCircle } from "lucide-react"
+import { FileText, CheckCircle2, Clock, AlertCircle } from "lucide-react"
 
 const statusConfig = {
   pending: { label: "En attente", icon: Clock, className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
@@ -16,8 +16,8 @@ export default async function InvoicesPage() {
 
   const { data: invoices } = await supabase
     .from("invoices")
-    .select("*, projects(name)")
-    .eq("user_id", user?.id)
+    .select("*, projects(project_name)")
+    .eq("client_id", user?.id)
     .order("created_at", { ascending: false })
 
   return (
@@ -32,7 +32,7 @@ export default async function InvoicesPage() {
           {invoices.map((invoice) => {
             const status = statusConfig[invoice.status as keyof typeof statusConfig] || statusConfig.pending
             const StatusIcon = status.icon
-            const project = invoice.projects as { name: string } | null
+            const project = invoice.projects as { project_name: string } | null
 
             return (
               <Card key={invoice.id} className="transition-all hover:border-primary/30">
@@ -43,7 +43,7 @@ export default async function InvoicesPage() {
                         Facture #{invoice.invoice_number}
                       </CardTitle>
                       <CardDescription>
-                        {project?.name || "Projet"} - Émise le{" "}
+                        {project?.project_name || "Projet"} - Émise le{" "}
                         {new Date(invoice.created_at).toLocaleDateString("fr-FR")}
                       </CardDescription>
                     </div>
@@ -68,10 +68,7 @@ export default async function InvoicesPage() {
                         </p>
                       )}
                     </div>
-                    <Button variant="outline" className="gap-2" disabled>
-                      <Download className="h-4 w-4" />
-                      Télécharger
-                    </Button>
+                    <p className="text-xs text-muted-foreground italic">Téléchargement bientôt disponible</p>
                   </div>
                 </CardContent>
               </Card>

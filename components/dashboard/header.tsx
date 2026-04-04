@@ -18,7 +18,7 @@ import { MobileSidebar } from "./mobile-sidebar"
 interface Profile {
   id: string
   full_name: string | null
-  company: string | null
+  company_name: string | null
   avatar_url: string | null
 }
 

@@ -62,12 +62,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             </p>
           </div>
         </div>
-        <Link href={`/dashboard/messages?project=${project.id}`}>
-          <Button variant="outline" className="gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Contacter l&apos;équipe
-          </Button>
-        </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

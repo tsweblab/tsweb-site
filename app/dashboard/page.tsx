@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { FolderKanban, MessageSquare, HelpCircle, Plus, Clock, CheckCircle2, AlertCircle } from "lucide-react"
+import { FolderKanban, MessageSquare, Plus, Clock, CheckCircle2, AlertCircle, Wrench, FlaskConical, Package } from "lucide-react"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -16,32 +16,25 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false })
     .limit(5)
 
-  // Fetch open support tickets
+  // Fetch open messages/tickets
   const { count: openTickets } = await supabase
     .from("support_tickets")
     .select("*", { count: "exact", head: true })
     .eq("client_id", user?.id)
     .neq("status", "resolved")
-
-  const unreadCount = 0
+    .neq("status", "closed")
 
   const stats = [
     {
       title: "Projets actifs",
-      value: projects?.filter(p => p.status !== "completed" && p.status !== "cancelled").length || 0,
+      value: projects?.filter(p => p.status !== "delivered" && p.status !== "cancelled").length || 0,
       icon: FolderKanban,
       href: "/dashboard/projects",
     },
     {
-      title: "Messages non lus",
-      value: unreadCount || 0,
-      icon: MessageSquare,
-      href: "/dashboard/messages",
-    },
-    {
-      title: "Tickets ouverts",
+      title: "Messages",
       value: openTickets || 0,
-      icon: HelpCircle,
+      icon: MessageSquare,
       href: "/dashboard/support",
     },
   ]
@@ -55,18 +48,46 @@ export default async function DashboardPage() {
             En attente
           </span>
         )
-      case "in_progress":
+      case "quoted":
         return (
-          <span className="flex items-center gap-1 text-xs text-primary">
+          <span className="flex items-center gap-1 text-xs text-blue-500">
             <AlertCircle className="h-3 w-3" />
-            En cours
+            Devis envoyé
           </span>
         )
-      case "completed":
+      case "accepted":
         return (
           <span className="flex items-center gap-1 text-xs text-green-500">
             <CheckCircle2 className="h-3 w-3" />
-            Terminé
+            Accepté
+          </span>
+        )
+      case "maquette":
+        return (
+          <span className="flex items-center gap-1 text-xs text-purple-500">
+            <AlertCircle className="h-3 w-3" />
+            Maquette
+          </span>
+        )
+      case "development":
+        return (
+          <span className="flex items-center gap-1 text-xs text-primary">
+            <Wrench className="h-3 w-3" />
+            En développement
+          </span>
+        )
+      case "testing":
+        return (
+          <span className="flex items-center gap-1 text-xs text-orange-500">
+            <FlaskConical className="h-3 w-3" />
+            En test
+          </span>
+        )
+      case "delivered":
+        return (
+          <span className="flex items-center gap-1 text-xs text-green-500">
+            <Package className="h-3 w-3" />
+            Livré
           </span>
         )
       default:
@@ -93,7 +114,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         {stats.map((stat) => (
           <Link key={stat.title} href={stat.href}>
             <Card className="transition-colors hover:border-primary/50">

@@ -16,3 +16,9 @@ export async function deleteTicket(ticketId: string) {
   await supabase.from("support_tickets").delete().eq("id", ticketId)
   redirect("/admin/support")
 }
+
+export async function markInvoicePaid(invoiceId: string) {
+  const supabase = createServiceClient()
+  await supabase.from("invoices").update({ status: "paid" }).eq("id", invoiceId)
+  redirect("/admin/invoices")
+}

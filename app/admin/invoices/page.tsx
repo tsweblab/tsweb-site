@@ -1,8 +1,9 @@
-import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { FileText, User, Clock, CheckCircle2, AlertCircle } from "lucide-react"
+import { markInvoicePaid } from "@/app/admin/actions"
 
 const statusConfig = {
   pending: { label: "En attente", icon: Clock, className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
@@ -11,11 +12,11 @@ const statusConfig = {
 }
 
 export default async function AdminInvoicesPage() {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   const { data: invoices } = await supabase
     .from("invoices")
-    .select("*, profiles(full_name, company), projects(name)")
+    .select("*, profiles(full_name, company_name), projects(project_name)")
     .order("created_at", { ascending: false })
 
   // Calculate totals
@@ -77,8 +78,8 @@ export default async function AdminInvoicesPage() {
           {invoices.map((invoice) => {
             const status = statusConfig[invoice.status as keyof typeof statusConfig] || statusConfig.pending
             const StatusIcon = status.icon
-            const profile = invoice.profiles as { full_name: string | null; company: string | null } | null
-            const project = invoice.projects as { name: string } | null
+            const profile = invoice.profiles as { full_name: string | null; company_name: string | null } | null
+            const project = invoice.projects as { project_name: string } | null
 
             return (
               <Card key={invoice.id} className="transition-all hover:border-primary/30">
@@ -91,11 +92,11 @@ export default async function AdminInvoicesPage() {
                       <CardDescription className="flex items-center gap-2">
                         <User className="h-3 w-3" />
                         {profile?.full_name || "Client"}
-                        {profile?.company && ` - ${profile.company}`}
+                        {profile?.company_name && ` - ${profile.company_name}`}
                       </CardDescription>
                       {project && (
                         <CardDescription>
-                          Projet: {project.name}
+                          Projet: {project.project_name}
                         </CardDescription>
                       )}
                     </div>
@@ -127,13 +128,12 @@ export default async function AdminInvoicesPage() {
                     </div>
                     <div className="flex gap-2">
                       {invoice.status === "pending" && (
-                        <Button size="sm" className="glow-primary">
-                          Marquer payée
-                        </Button>
+                        <form action={markInvoicePaid.bind(null, invoice.id)}>
+                          <Button size="sm" type="submit" className="glow-primary">
+                            Marquer payée
+                          </Button>
+                        </form>
                       )}
-                      <Button size="sm" variant="outline">
-                        Voir détails
-                      </Button>
                     </div>
                   </div>
                 </CardContent>

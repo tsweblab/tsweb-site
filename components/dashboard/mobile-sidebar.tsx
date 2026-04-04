@@ -3,11 +3,10 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { User } from "@supabase/supabase-js"
-import { 
-  LayoutDashboard, 
-  FolderKanban, 
-  MessageSquare, 
-  HelpCircle, 
+import {
+  LayoutDashboard,
+  FolderKanban,
+  MessageSquare,
   FileText,
   Settings
 } from "lucide-react"
@@ -17,7 +16,7 @@ import { SheetClose } from "@/components/ui/sheet"
 interface Profile {
   id: string
   full_name: string | null
-  company: string | null
+  company_name: string | null
   avatar_url: string | null
 }
 
@@ -39,13 +38,8 @@ const navItems = [
   },
   {
     title: "Messages",
-    href: "/dashboard/messages",
-    icon: MessageSquare,
-  },
-  {
-    title: "Support",
     href: "/dashboard/support",
-    icon: HelpCircle,
+    icon: MessageSquare,
   },
   {
     title: "Factures",
@@ -118,7 +112,7 @@ export function MobileSidebar({ profile }: MobileSidebarProps) {
               {profile?.full_name || "Utilisateur"}
             </p>
             <p className="truncate text-xs text-sidebar-foreground/60">
-              {profile?.company || "Client"}
+              {profile?.company_name || "Client"}
             </p>
           </div>
         </div>
