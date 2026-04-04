@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -12,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
-import { MessageSquare, Clock, CheckCircle2, AlertCircle, User, ChevronRight, FolderKanban, HelpCircle } from "lucide-react"
+import { MessageSquare, Clock, CheckCircle2, AlertCircle, User, ChevronRight, FolderKanban, HelpCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 interface SupportTicket {
@@ -47,6 +46,7 @@ export default function AdminSupportPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   async function loadTickets() {
     const supabase = createClient()
@@ -74,15 +74,15 @@ export default function AdminSupportPage() {
     loadTickets()
   }, [statusFilter, typeFilter])
 
-  async function updateTicketStatus(ticketId: string, newStatus: string, e: React.MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
+  async function updateTicketStatus(ticketId: string, newStatus: string) {
+    setUpdatingId(ticketId)
     const supabase = createClient()
     await supabase
       .from("support_tickets")
       .update({ status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", ticketId)
-    loadTickets()
+    await loadTickets()
+    setUpdatingId(null)
   }
 
   if (isLoading) {
@@ -160,7 +160,7 @@ export default function AdminSupportPage() {
                           {new Date(ticket.created_at).toLocaleDateString("fr-FR")}
                         </CardDescription>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Badge variant="outline" className={
                           isProjectDiscussion
                             ? "border-purple-500/20 bg-purple-500/10 text-purple-500"
@@ -171,37 +171,34 @@ export default function AdminSupportPage() {
                         <Badge variant="outline" className={prio.className}>
                           {prio.label}
                         </Badge>
-                        <Badge variant="outline" className={stat.className}>
-                          <StatusIcon className="mr-1 h-3 w-3" />
-                          {stat.label}
-                        </Badge>
+                        <Select
+                          value={ticket.status}
+                          onValueChange={(val) => updateTicketStatus(ticket.id, val)}
+                          disabled={updatingId === ticket.id}
+                        >
+                          <SelectTrigger
+                            className={`h-7 w-32 text-xs ${stat.className} border`}
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
+                          >
+                            {updatingId === ticket.id
+                              ? <Loader2 className="h-3 w-3 animate-spin" />
+                              : <><StatusIcon className="mr-1 h-3 w-3" /><SelectValue /></>
+                            }
+                          </SelectTrigger>
+                          <SelectContent onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
+                            <SelectItem value="open">Ouvert</SelectItem>
+                            <SelectItem value="in_progress">En cours</SelectItem>
+                            <SelectItem value="resolved">Résolu</SelectItem>
+                            <SelectItem value="closed">Fermé</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {ticket.message}
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                      {ticket.status !== "in_progress" && (
-                        <Button size="sm" variant="outline"
-                          onClick={(e) => updateTicketStatus(ticket.id, "in_progress", e)}>
-                          Prendre en charge
-                        </Button>
-                      )}
-                      {ticket.status !== "resolved" && (
-                        <Button size="sm" className="glow-primary"
-                          onClick={(e) => updateTicketStatus(ticket.id, "resolved", e)}>
-                          Marquer résolu
-                        </Button>
-                      )}
-                      {ticket.status === "resolved" && (
-                        <Button size="sm" variant="outline"
-                          onClick={(e) => updateTicketStatus(ticket.id, "open", e)}>
-                          Réouvrir
-                        </Button>
-                      )}
-                    </div>
                   </CardContent>
                 </Card>
               </Link>

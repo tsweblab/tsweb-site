@@ -7,6 +7,13 @@ import { ArrowLeft, Send, Loader2, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
 import { DeleteButton } from "@/components/admin/delete-button"
 import { deleteTicket } from "@/app/admin/actions"
@@ -29,17 +36,17 @@ interface Ticket {
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
-  open: { label: "Ouvert", className: "bg-primary/10 text-primary border-primary/20" },
+  open:        { label: "Ouvert",   className: "bg-primary/10 text-primary border-primary/20" },
   in_progress: { label: "En cours", className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
-  resolved: { label: "Résolu", className: "bg-green-500/10 text-green-500 border-green-500/20" },
-  closed: { label: "Fermé", className: "bg-muted text-muted-foreground border-border" },
+  resolved:    { label: "Résolu",   className: "bg-green-500/10 text-green-500 border-green-500/20" },
+  closed:      { label: "Fermé",    className: "bg-muted text-muted-foreground border-border" },
 }
 
 const priorityConfig: Record<string, { label: string; className: string }> = {
-  low: { label: "Basse", className: "bg-green-500/10 text-green-500 border-green-500/20" },
+  low:    { label: "Basse",   className: "bg-green-500/10 text-green-500 border-green-500/20" },
   medium: { label: "Moyenne", className: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
-  high: { label: "Haute", className: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
-  urgent: { label: "Urgent", className: "bg-destructive/10 text-destructive border-destructive/20" },
+  high:   { label: "Haute",   className: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
+  urgent: { label: "Urgent",  className: "bg-destructive/10 text-destructive border-destructive/20" },
 }
 
 export default function AdminTicketDetailPage() {
@@ -52,6 +59,7 @@ export default function AdminTicketDetailPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [newMessage, setNewMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -80,11 +88,8 @@ export default function AdminTicketDetailPage() {
     setIsLoading(false)
   }
 
-  useEffect(() => {
-    loadData()
-  }, [id])
+  useEffect(() => { loadData() }, [id])
 
-  // Poll for new messages every 3 seconds
   useEffect(() => {
     const interval = setInterval(async () => {
       const supabase = createClient()
@@ -116,7 +121,6 @@ export default function AdminTicketDetailPage() {
 
     if (!error) {
       setNewMessage("")
-      // Auto-set to in_progress when admin replies
       if (ticket?.status === "open") {
         await supabase.from("support_tickets").update({ status: "in_progress" }).eq("id", id)
       }
@@ -126,9 +130,11 @@ export default function AdminTicketDetailPage() {
   }
 
   async function updateStatus(newStatus: string) {
+    setIsUpdating(true)
     const supabase = createClient()
     await supabase.from("support_tickets").update({ status: newStatus }).eq("id", id)
     await loadData()
+    setIsUpdating(false)
   }
 
   if (isLoading) {
@@ -147,47 +153,45 @@ export default function AdminTicketDetailPage() {
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col space-y-0">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4 pb-4">
-        <div className="flex items-start gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4">
+        <div className="flex items-center gap-3 min-w-0">
           <Link href="/admin/support">
-            <Button variant="ghost" size="icon" className="mt-1 shrink-0">
+            <Button variant="ghost" size="icon" className="shrink-0">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <div>
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-bold">{ticket.subject}</h1>
+              <h1 className="truncate text-lg font-bold">{ticket.subject}</h1>
               <Badge variant="outline" className={status.className}>{status.label}</Badge>
               {priority && <Badge variant="outline" className={priority.className}>{priority.label}</Badge>}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground truncate">
               {ticket.profiles?.full_name || "Client"} · {ticket.profiles?.email} · {new Date(ticket.created_at).toLocaleDateString("fr-FR")}
             </p>
           </div>
         </div>
 
-        {/* Status actions */}
-        <div className="flex flex-wrap gap-2">
-          {ticket.status === "open" && (
-            <Button size="sm" variant="outline" onClick={() => updateStatus("in_progress")}>
-              Prendre en charge
-            </Button>
-          )}
-          {ticket.status !== "resolved" && ticket.status !== "closed" && (
-            <Button size="sm" className="glow-primary" onClick={() => updateStatus("resolved")}>
-              Marquer résolu
-            </Button>
-          )}
-          {ticket.status === "resolved" && (
-            <Button size="sm" variant="outline" onClick={() => updateStatus("open")}>
-              Réouvrir
-            </Button>
-          )}
-          {ticket.status !== "closed" && (
-            <Button size="sm" variant="destructive" onClick={() => updateStatus("closed")}>
-              Fermer
-            </Button>
-          )}
+        {/* Actions compactes */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Select
+            value={ticket.status}
+            onValueChange={updateStatus}
+            disabled={isUpdating}
+          >
+            <SelectTrigger className="w-36">
+              {isUpdating
+                ? <Loader2 className="h-4 w-4 animate-spin" />
+                : <SelectValue />
+              }
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="open">Ouvert</SelectItem>
+              <SelectItem value="in_progress">En cours</SelectItem>
+              <SelectItem value="resolved">Résolu</SelectItem>
+              <SelectItem value="closed">Fermé</SelectItem>
+            </SelectContent>
+          </Select>
           <DeleteButton
             action={deleteTicket.bind(null, id)}
             label="Supprimer"
@@ -198,7 +202,6 @@ export default function AdminTicketDetailPage() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto rounded-lg border border-border/50 bg-card/30 p-4">
-        {/* Message initial du ticket */}
         {ticket.message && (
           <div className="mb-4 flex justify-start">
             <div className="max-w-[75%] space-y-1">
@@ -221,8 +224,6 @@ export default function AdminTicketDetailPage() {
 
         {messages.map((msg) => {
           const isMe = msg.sender_id === currentUserId
-          const senderName = isMe ? "Vous" : "Client"
-
           return (
             <div key={msg.id} className={`mb-4 flex ${isMe ? "justify-end" : "justify-start"}`}>
               <div className="max-w-[75%] space-y-1">
@@ -230,7 +231,7 @@ export default function AdminTicketDetailPage() {
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                 </div>
                 <p className={`text-xs text-muted-foreground ${isMe ? "text-right" : "text-left"}`}>
-                  {senderName} · {new Date(msg.created_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                  {isMe ? "Vous" : "Client"} · {new Date(msg.created_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>
             </div>
@@ -261,7 +262,7 @@ export default function AdminTicketDetailPage() {
         </form>
       ) : (
         <div className="rounded-lg border border-border/50 bg-muted/30 px-4 py-3 text-center text-sm text-muted-foreground">
-          Ce ticket est fermé.
+          Ce ticket est fermé. <button onClick={() => updateStatus("open")} className="text-primary underline underline-offset-2">Réouvrir</button>
         </div>
       )}
     </div>
