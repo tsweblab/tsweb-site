@@ -1,8 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
+import { createServiceClient } from "@/lib/supabase/service"
 import { ProjectKanban } from "@/components/admin/project-kanban"
 
 export default async function AdminProjectsPage() {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   const { data: projects } = await supabase
     .from("projects")
