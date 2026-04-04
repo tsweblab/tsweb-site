@@ -26,6 +26,7 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
   const [isSending, setIsSending] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [initError, setInitError] = useState<string | null>(null)
+  const [sendError, setSendError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   async function initChat() {
@@ -82,7 +83,12 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
-    if (!content.trim() || !ticketId) return
+    if (!content.trim()) return
+    if (!ticketId) {
+      setSendError("La discussion n'est pas encore initialisée. Rechargez la page.")
+      return
+    }
+    setSendError(null)
     setIsSending(true)
 
     const supabase = createClient()
@@ -92,7 +98,9 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
       content: content.trim(),
     })
 
-    if (!error) {
+    if (error) {
+      setSendError(error.message)
+    } else {
       setContent("")
       await loadMessages(ticketId)
     }
@@ -184,7 +192,12 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
             {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">Entrée pour envoyer · Maj+Entrée pour sauter une ligne</p>
+        {sendError && (
+          <p className="mt-1 text-xs text-destructive">{sendError}</p>
+        )}
+        {!sendError && (
+          <p className="mt-1 text-xs text-muted-foreground">Entrée pour envoyer · Maj+Entrée pour sauter une ligne</p>
+        )}
       </form>
     </div>
   )
