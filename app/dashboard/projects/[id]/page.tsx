@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ProjectChat } from "@/components/dashboard/project-chat"
 import Link from "next/link"
 import { ArrowLeft, Clock, CheckCircle2, AlertCircle, XCircle, Globe, Rocket, ExternalLink, MessageSquare } from "lucide-react"
 
@@ -21,6 +22,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) notFound()
 
   const { data: project } = await supabase
     .from("projects")
@@ -170,23 +172,26 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Besoin d&apos;aide ?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Notre équipe est disponible pour répondre à vos questions.
-              </p>
-              <Link href="/dashboard/support" className="block">
-                <Button variant="outline" className="w-full">
-                  Ouvrir un ticket
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
         </div>
       </div>
+
+      {/* Discussion */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            Discussion du projet
+          </CardTitle>
+          <CardDescription>
+            Échangez directement avec l&apos;équipe TS WEB Lab sur ce projet.
+          </CardDescription>
+        </CardHeader>
+        <ProjectChat
+          projectId={project.id}
+          userId={user!.id}
+          projectName={project.project_name}
+        />
+      </Card>
     </div>
   )
 }

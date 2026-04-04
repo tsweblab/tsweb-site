@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,7 +14,6 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { Clock, AlertCircle, Eye, CheckCircle2, XCircle, MoreVertical, Globe, Rocket } from "lucide-react"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
 
 interface Project {
   id: string
@@ -51,6 +51,7 @@ const allStatuses = [
 
 export function ProjectKanban({ initialProjects }: ProjectKanbanProps) {
   const [projects, setProjects] = useState(initialProjects)
+  const router = useRouter()
 
   async function updateProjectStatus(projectId: string, newStatus: string) {
     const supabase = createClient()
@@ -92,6 +93,7 @@ export function ProjectKanban({ initialProjects }: ProjectKanbanProps) {
                 <Card
                   key={project.id}
                   className="cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
+                  onClick={() => router.push(`/admin/projects/${project.id}`)}
                 >
                   <CardHeader className="p-4 pb-2">
                     <div className="flex items-start justify-between">
@@ -101,14 +103,10 @@ export function ProjectKanban({ initialProjects }: ProjectKanbanProps) {
                         ) : (
                           <Rocket className="h-4 w-4 text-muted-foreground" />
                         )}
-                        <Link href={`/admin/projects/${project.id}`}>
-                          <CardTitle className="text-sm hover:text-primary">
-                            {project.project_name}
-                          </CardTitle>
-                        </Link>
+                        <CardTitle className="text-sm">{project.project_name}</CardTitle>
                       </div>
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                           <Button variant="ghost" size="icon" className="h-6 w-6">
                             <MoreVertical className="h-4 w-4" />
                           </Button>
