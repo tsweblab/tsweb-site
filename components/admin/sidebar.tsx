@@ -3,11 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { User } from "@supabase/supabase-js"
-import { 
-  LayoutDashboard, 
-  FolderKanban, 
-  Users, 
-  HelpCircle, 
+import {
+  LayoutDashboard,
+  FolderKanban,
+  Users,
+  MessageSquare,
   FileText,
   Settings,
   BarChart3
@@ -43,9 +43,9 @@ const navItems = [
     icon: Users,
   },
   {
-    title: "Support",
+    title: "Messages",
     href: "/admin/support",
-    icon: HelpCircle,
+    icon: MessageSquare,
   },
   {
     title: "Factures",
