@@ -54,7 +54,7 @@ export function Header() {
           </Link>
           <Link href="/auth/sign-up">
             <Button size="sm" className="glow-primary">
-              Lancer mon projet web
+              Créer un compte
             </Button>
           </Link>
         </div>
@@ -106,7 +106,7 @@ export function Header() {
               </Link>
               <Link href="/auth/sign-up">
                 <Button size="sm" className="w-full glow-primary">
-                  Lancer mon projet web
+                  Créer un compte
                 </Button>
               </Link>
             </div>
