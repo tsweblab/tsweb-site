@@ -1,33 +1,29 @@
-import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { createServiceClient } from "@/lib/supabase/service"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Users, User, Building, FolderKanban, Calendar } from "lucide-react"
-import Link from "next/link"
+import { Users, User, Building2, FolderKanban, Calendar, Mail, Phone } from "lucide-react"
 
 export default async function AdminClientsPage() {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
-  // Fetch all profiles with their project counts
   const { data: clients } = await supabase
     .from("profiles")
     .select("*")
+    .eq("role", "client")
     .order("created_at", { ascending: false })
 
-  // Fetch projects for each client
   const { data: projects } = await supabase
     .from("projects")
-    .select("user_id, status")
+    .select("client_id, status")
 
-  // Create a map of project counts by user
   const projectCounts = projects?.reduce((acc, project) => {
-    acc[project.user_id] = (acc[project.user_id] || 0) + 1
+    acc[project.client_id] = (acc[project.client_id] || 0) + 1
     return acc
   }, {} as Record<string, number>) || {}
 
   const activeProjectCounts = projects?.reduce((acc, project) => {
-    if (project.status !== "completed" && project.status !== "cancelled") {
-      acc[project.user_id] = (acc[project.user_id] || 0) + 1
+    if (project.status !== "delivered" && project.status !== "cancelled") {
+      acc[project.client_id] = (acc[project.client_id] || 0) + 1
     }
     return acc
   }, {} as Record<string, number>) || {}
@@ -46,49 +42,58 @@ export default async function AdminClientsPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
                       <User className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <CardTitle className="text-base">
                         {client.full_name || "Client sans nom"}
                       </CardTitle>
-                      {client.company && (
-                        <CardDescription className="flex items-center gap-1">
-                          <Building className="h-3 w-3" />
-                          {client.company}
-                        </CardDescription>
+                      {client.company_name && (
+                        <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Building2 className="h-3 w-3" />
+                          {client.company_name}
+                        </p>
                       )}
                     </div>
                   </div>
                   {activeProjectCounts[client.id] > 0 && (
-                    <Badge className="bg-primary/10 text-primary">
+                    <Badge className="shrink-0 bg-primary/10 text-primary">
                       {activeProjectCounts[client.id]} actif{activeProjectCounts[client.id] > 1 ? "s" : ""}
                     </Badge>
                   )}
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <FolderKanban className="h-4 w-4" />
-                      Total projets
-                    </span>
-                    <span className="font-medium">{projectCounts[client.id] || 0}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      Inscrit le
-                    </span>
-                    <span className="font-medium">
-                      {new Date(client.created_at).toLocaleDateString("fr-FR")}
-                    </span>
-                  </div>
-                  {client.phone && (
-                    <p className="text-sm text-muted-foreground">{client.phone}</p>
+                <div className="space-y-2">
+                  {client.email && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <a href={`mailto:${client.email}`} className="truncate text-muted-foreground hover:text-primary">
+                        {client.email}
+                      </a>
+                    </div>
                   )}
+                  {client.phone && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <a href={`tel:${client.phone}`} className="text-muted-foreground hover:text-primary">
+                        {client.phone}
+                      </a>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-sm">
+                    <FolderKanban className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      {projectCounts[client.id] || 0} projet{(projectCounts[client.id] || 0) > 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="text-muted-foreground">
+                      Inscrit le {new Date(client.created_at).toLocaleDateString("fr-FR")}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
