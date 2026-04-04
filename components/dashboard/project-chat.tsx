@@ -25,6 +25,7 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
   const [content, setContent] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [initError, setInitError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   async function initChat() {
@@ -36,14 +37,12 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
       .select("id")
       .eq("client_id", userId)
       .eq("project_id", projectId)
-      .eq("subject", `Discussion — ${projectName}`)
-      .single()
+      .maybeSingle()
 
     let tid = existing?.id
 
     if (!tid) {
-      // Crée le ticket de discussion automatiquement
-      const { data: created } = await supabase
+      const { data: created, error: createError } = await supabase
         .from("support_tickets")
         .insert({
           client_id: userId,
@@ -55,6 +54,12 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
         })
         .select("id")
         .single()
+
+      if (createError) {
+        setInitError(createError.message)
+        setIsLoading(false)
+        return
+      }
       tid = created?.id
     }
 
@@ -102,7 +107,6 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Polling toutes les 3s
   useEffect(() => {
     if (!ticketId) return
     const interval = setInterval(() => loadMessages(ticketId), 3000)
@@ -117,10 +121,18 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
     )
   }
 
+  if (initError) {
+    return (
+      <div className="flex h-40 items-center justify-center px-4 text-center text-sm text-destructive">
+        Erreur : {initError}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col">
       {/* Messages */}
-      <div className="h-80 overflow-y-auto space-y-3 p-4">
+      <div className="h-80 overflow-y-auto space-y-3 p-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:transparent">
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
             <MessageSquare className="h-8 w-8 opacity-30" />
