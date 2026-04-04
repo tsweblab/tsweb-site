@@ -138,7 +138,7 @@ export default function AdminSupportPage() {
                 <Card className={`cursor-pointer transition-all hover:border-primary/30 ${
                   isProjectDiscussion
                     ? "border-l-4 border-l-purple-500"
-                    : "border-l-4 border-l-blue-500"
+                    : "border-l-4 border-l-green-500"
                 }`}>
                   <CardHeader className="pb-3">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -147,7 +147,7 @@ export default function AdminSupportPage() {
                           {isProjectDiscussion ? (
                             <FolderKanban className="h-4 w-4 shrink-0 text-purple-500" />
                           ) : (
-                            <HelpCircle className="h-4 w-4 shrink-0 text-blue-500" />
+                            <HelpCircle className="h-4 w-4 shrink-0 text-green-500" />
                           )}
                           {ticket.subject}
                           <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -164,7 +164,7 @@ export default function AdminSupportPage() {
                         <Badge variant="outline" className={
                           isProjectDiscussion
                             ? "border-purple-500/20 bg-purple-500/10 text-purple-500"
-                            : "border-blue-500/20 bg-blue-500/10 text-blue-500"
+                            : "border-green-500/20 bg-green-500/10 text-green-500"
                         }>
                           {isProjectDiscussion ? "Projet" : "Support"}
                         </Badge>
