@@ -74,7 +74,7 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
   async function loadMessages(tid: string) {
     const supabase = createClient()
     const { data } = await supabase
-      .from("ticket_messages")
+      .from("messages")
       .select("id, content, sender_id, created_at")
       .eq("ticket_id", tid)
       .order("created_at", { ascending: true })
@@ -92,7 +92,7 @@ export function ProjectChat({ projectId, userId, projectName }: ProjectChatProps
     setIsSending(true)
 
     const supabase = createClient()
-    const { error } = await supabase.from("ticket_messages").insert({
+    const { error } = await supabase.from("messages").insert({
       ticket_id: ticketId,
       sender_id: userId,
       content: content.trim(),
