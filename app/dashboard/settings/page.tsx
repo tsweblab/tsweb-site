@@ -34,7 +34,7 @@ export default function SettingsPage() {
 
       if (profile) {
         setFullName(profile.full_name || "")
-        setCompany(profile.company || "")
+        setCompany(profile.company_name || "")
         setPhone(profile.phone || "")
       }
       setIsLoading(false)
@@ -57,7 +57,7 @@ export default function SettingsPage() {
       .from("profiles")
       .update({
         full_name: fullName,
-        company,
+        company_name: company,
         phone,
         updated_at: new Date().toISOString(),
       })
